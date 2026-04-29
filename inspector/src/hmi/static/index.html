@@ -5,90 +5,336 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Yolobottles — Inspection Dashboard</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1117;
+      --card:      #1a1d27;
+      --border:    #2a2d3a;
+      --text:      #e0e0e0;
+      --muted:     #888;
+      --blue:      #90caf9;
+      --green:     #66bb6a;
+      --red:       #ef5350;
+      --orange:    #ffa726;
+      --c0: #e67e22;  /* color_defect */
+      --c1: #e74c3c;  /* hole         */
+      --c2: #8e44ad;  /* contamination*/
+      --c3: #3498db;  /* whitening    */
+      --c4: #1abc9c;  /* mold_defect  */
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0f1117;
-      color: #e0e0e0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 20px;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      padding: 32px 24px 48px;
+      max-width: 900px;
+      margin: 0 auto;
     }
-    h1 { font-size: 1.6rem; letter-spacing: 0.1em; color: #fff; margin-bottom: 8px; }
-    .subtitle { font-size: 0.85rem; color: #888; margin-bottom: 40px; }
 
-    .cards {
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    header h1 { font-size: 1.5rem; letter-spacing: .12em; color: #fff; }
+    header .sub { font-size: .8rem; color: var(--muted); }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: .78rem;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .status-badge.running { border-color: var(--green); color: var(--green); }
+    .status-badge.done    { border-color: var(--blue);  color: var(--blue); }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: currentColor;
+    }
+    .dot.pulse { animation: pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    /* ── KPI cards ──────────────────────────────────────── */
+    .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 20px;
-      width: 100%;
-      max-width: 700px;
-      margin-bottom: 40px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 14px;
     }
+    @media (max-width: 580px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+
     .card {
-      background: #1a1d27;
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 24px;
+      padding: 20px 16px;
       text-align: center;
-      border: 1px solid #2a2d3a;
     }
-    .card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #888; margin-bottom: 10px; }
-    .card .value { font-size: 2.4rem; font-weight: 700; }
-    .card.total  .value { color: #90caf9; }
-    .card.ok     .value { color: #66bb6a; }
-    .card.ng     .value { color: #ef5350; }
-    .card.rate   .value { color: #ffa726; }
+    .card .label { font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 8px; }
+    .card .value { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+    .card.total .value { color: var(--blue); }
+    .card.ok    .value { color: var(--green); }
+    .card.ng    .value { color: var(--red); }
+    .card.rate  .value { color: var(--orange); }
 
-    .bar-container {
-      width: 100%;
-      max-width: 700px;
-      background: #1a1d27;
-      border-radius: 8px;
+    /* ── OK/NG bar ──────────────────────────────────────── */
+    .okbar-wrap {
+      background: var(--red);
+      border-radius: 6px;
       overflow: hidden;
-      height: 18px;
-      border: 1px solid #2a2d3a;
+      height: 10px;
+      margin-bottom: 28px;
+      border: 1px solid var(--border);
     }
-    .bar-ok { height: 100%; background: #66bb6a; transition: width 0.4s ease; }
+    .okbar-fill { height: 100%; background: var(--green); transition: width .5s ease; }
 
-    .status { margin-top: 16px; font-size: 0.78rem; color: #555; }
-    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #66bb6a; margin-right: 6px; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    /* ── Section titles ─────────────────────────────────── */
+    .section-title {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Defect breakdown ───────────────────────────────── */
+    .breakdown { margin-bottom: 28px; }
+    .class-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 48px;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .class-name {
+      font-size: .82rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .class-bar-bg {
+      background: var(--border);
+      border-radius: 4px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .class-bar-fill { height: 100%; border-radius: 4px; transition: width .5s ease; min-width: 0; }
+    .class-count { font-size: .82rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ── History table ──────────────────────────────────── */
+    .history { }
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .82rem;
+    }
+    .history-table th {
+      text-align: left;
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      padding: 0 8px 8px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 400;
+    }
+    .history-table td {
+      padding: 7px 8px;
+      border-bottom: 1px solid #1e2130;
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .history-table tr:last-child td { border-bottom: none; }
+    .history-table tr.ng-row td:first-child { border-left: 2px solid var(--red); }
+    .history-table tr.ok-row td:first-child { border-left: 2px solid var(--green); }
+
+    .badge {
+      display: inline-block;
+      font-size: .68rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-right: 4px;
+      white-space: nowrap;
+    }
+    .badge-ok { background: rgba(102,187,106,.15); color: var(--green); }
+    .badge-ng { background: rgba(239,83,80,.15);   color: var(--red); }
+
+    .defect-pill {
+      display: inline-block;
+      font-size: .68rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin: 1px 2px 1px 0;
+      white-space: nowrap;
+    }
+
+    .ms { color: var(--muted); font-size: .75rem; font-variant-numeric: tabular-nums; }
+
+    .empty-msg { color: var(--muted); font-size: .85rem; padding: 16px 8px; }
+
+    footer {
+      margin-top: 40px;
+      font-size: .72rem;
+      color: #444;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <h1>YOLOBOTTLES</h1>
-  <div class="subtitle">PET Bottle Bottom Inspection — Image Bank Mode</div>
 
-  <div class="cards">
-    <div class="card total"><div class="label">Inspected</div><div class="value" id="total">—</div></div>
-    <div class="card ok">   <div class="label">OK</div>        <div class="value" id="ok">—</div></div>
-    <div class="card ng">   <div class="label">NG</div>        <div class="value" id="ng">—</div></div>
-    <div class="card rate"> <div class="label">Reject %</div>  <div class="value" id="rate">—</div></div>
+<header>
+  <div>
+    <h1>YOLOBOTTLES</h1>
+    <div class="sub">PET Bottle Inspection — Image Bank Mode</div>
   </div>
-
-  <div class="bar-container">
-    <div class="bar-ok" id="bar" style="width:0%"></div>
+  <div class="status-badge" id="status-badge">
+    <div class="dot pulse" id="status-dot"></div>
+    <span id="status-text">Connecting…</span>
   </div>
+</header>
 
-  <div class="status"><span class="dot"></span>Refreshing every second</div>
+<!-- KPI cards -->
+<div class="kpi-grid">
+  <div class="card total"><div class="label">Inspected</div><div class="value" id="kpi-total">—</div></div>
+  <div class="card ok">   <div class="label">OK</div>         <div class="value" id="kpi-ok">—</div></div>
+  <div class="card ng">   <div class="label">NG</div>         <div class="value" id="kpi-ng">—</div></div>
+  <div class="card rate"> <div class="label">Reject %</div>   <div class="value" id="kpi-rate">—</div></div>
+</div>
 
-  <script>
-    async function refresh() {
-      try {
-        const r = await fetch('/api/stats');
-        const d = await r.json();
-        document.getElementById('total').textContent = d.total;
-        document.getElementById('ok').textContent    = d.ok;
-        document.getElementById('ng').textContent    = d.ng;
-        document.getElementById('rate').textContent  = d.reject_rate_pct.toFixed(1) + '%';
-        const pct = d.total > 0 ? (d.ok / d.total * 100) : 0;
-        document.getElementById('bar').style.width = pct + '%';
-      } catch(e) { /* server not ready yet */ }
-    }
-    refresh();
-    setInterval(refresh, 1000);
-  </script>
+<!-- OK/NG bar -->
+<div class="okbar-wrap"><div class="okbar-fill" id="okbar" style="width:0%"></div></div>
+
+<!-- Defect breakdown -->
+<div class="breakdown">
+  <div class="section-title">Defect breakdown</div>
+  <div id="breakdown-rows"></div>
+</div>
+
+<!-- Recent inspections -->
+<div class="history">
+  <div class="section-title">Recent inspections</div>
+  <table class="history-table">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Result</th>
+        <th>Defects</th>
+        <th style="text-align:right">Time</th>
+      </tr>
+    </thead>
+    <tbody id="history-body">
+      <tr><td colspan="4" class="empty-msg">Waiting for data…</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>Refreshing every second · Yolobottles v0.1</footer>
+
+<script>
+  const CLASS_COLORS = ['#e67e22','#e74c3c','#8e44ad','#3498db','#1abc9c'];
+
+  let maxNgClass = 0;  // for scaling bars
+
+  async function refreshStats() {
+    try {
+      const r = await fetch('/api/stats');
+      const d = await r.json();
+
+      document.getElementById('kpi-total').textContent = d.total;
+      document.getElementById('kpi-ok').textContent    = d.ok;
+      document.getElementById('kpi-ng').textContent    = d.ng;
+      document.getElementById('kpi-rate').textContent  = d.reject_rate_pct.toFixed(1) + '%';
+
+      const okPct = d.total > 0 ? (d.ok / d.total * 100) : 0;
+      document.getElementById('okbar').style.width = okPct + '%';
+
+      // Status badge
+      const badge = document.getElementById('status-badge');
+      const dot   = document.getElementById('status-dot');
+      const text  = document.getElementById('status-text');
+      if (d.pipeline_done) {
+        badge.className = 'status-badge done';
+        dot.className   = 'dot';
+        text.textContent = 'Complete';
+      } else {
+        badge.className = 'status-badge running';
+        dot.className   = 'dot pulse';
+        text.textContent = 'Running…';
+      }
+
+      // Defect breakdown bars
+      if (d.class_counts && d.class_counts.length > 0) {
+        maxNgClass = Math.max(1, ...d.class_counts.map(c => c.count));
+        const container = document.getElementById('breakdown-rows');
+        container.innerHTML = d.class_counts.map((cls, i) => {
+          const pct = (cls.count / maxNgClass * 100).toFixed(1);
+          return `<div class="class-row">
+            <span class="class-name" style="color:${CLASS_COLORS[i]}">${cls.name}</span>
+            <div class="class-bar-bg">
+              <div class="class-bar-fill" style="width:${pct}%;background:${CLASS_COLORS[i]}"></div>
+            </div>
+            <span class="class-count">${cls.count}</span>
+          </div>`;
+        }).join('');
+      }
+    } catch(e) { /* server not ready */ }
+  }
+
+  async function refreshHistory() {
+    try {
+      const r = await fetch('/api/history');
+      const rows = await r.json();
+      const tbody = document.getElementById('history-body');
+
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">No inspections yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(row => {
+        const cls   = row.is_ng ? 'ng-row' : 'ok-row';
+        const badge = row.is_ng
+          ? '<span class="badge badge-ng">NG</span>'
+          : '<span class="badge badge-ok">OK</span>';
+
+        const pills = row.defects.map((d, i) => {
+          const colorIdx = ['color_defect','hole','contamination','whitening','mold_defect'].indexOf(d.class_name);
+          const col = CLASS_COLORS[colorIdx] || '#888';
+          return `<span class="defect-pill" style="background:${col}22;color:${col}">${d.class_name} ${d.confidence_pct}%</span>`;
+        }).join('');
+
+        return `<tr class="${cls}">
+          <td>${row.filename}</td>
+          <td>${badge}</td>
+          <td>${pills || '<span style="color:#444">—</span>'}</td>
+          <td class="ms" style="text-align:right">${row.elapsed_ms}ms</td>
+        </tr>`;
+      }).join('');
+    } catch(e) { /* server not ready */ }
+  }
+
+  function refresh() {
+    refreshStats();
+    refreshHistory();
+  }
+
+  refresh();
+  setInterval(refresh, 1000);
+</script>
 </body>
 </html>

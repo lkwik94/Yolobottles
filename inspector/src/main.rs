@@ -3,6 +3,7 @@ mod pipeline;
 mod ejector;
 mod hmi;
 
+use std::collections::VecDeque;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -35,12 +36,34 @@ pub struct Args {
     pub eject_delay_ms: u64,
 }
 
+pub const HISTORY_CAPACITY: usize = 50;
+
+#[derive(Debug, Clone)]
+pub struct DefectSummary {
+    pub class_name:     String,
+    pub confidence_pct: u32,
+}
+
+#[derive(Debug, Clone)]
+pub struct InspectionRecord {
+    pub filename:   String,
+    pub is_ng:      bool,
+    pub elapsed_ms: u64,
+    pub defects:    Vec<DefectSummary>,
+}
+
 /// Shared counters visible to pipeline and HMI
-#[derive(Default, Debug)]
+#[derive(Debug, Default)]
 pub struct Stats {
-    pub total: u64,
-    pub ok:    u64,
-    pub ng:    u64,
+    pub total:         u64,
+    pub ok:            u64,
+    pub ng:            u64,
+    /// Per-class NG detection counts (indexed by class_id)
+    pub class_counts:  [u64; 5],
+    /// Rolling history of the last HISTORY_CAPACITY inspections
+    pub history:       VecDeque<InspectionRecord>,
+    /// Set to true when the image bank has been fully processed
+    pub pipeline_done: bool,
 }
 
 #[tokio::main]

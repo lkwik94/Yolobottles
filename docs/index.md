@@ -39,6 +39,7 @@ Camera mounted above, filming the **bottle bottom through the neck**. YOLO-based
 |------|-------------|
 | [[tools/importer]] | Visual image triage — classify raw images into the dataset structure |
 | [[tools/annotator]] | Browser-based bounding box annotator — draw YOLO labels on NG images |
+| [[tools/hmi]] | Rust HMI dashboard — real-time inspection stats at http://localhost:8080 |
 
 ### Architecture
 
@@ -103,6 +104,7 @@ Caméra montée au-dessus, filmant le **fond de bouteille par le goulot**. Déte
 |------|-------------|
 | [[tools/importer]] | Triage visuel d'images — classer les images brutes dans la structure dataset |
 | [[tools/annotator]] | Annoteur de bounding boxes dans le navigateur — dessiner les labels YOLO sur les NG |
+| [[tools/hmi]] | Tableau de bord HMI Rust — statistiques d'inspection en temps réel sur http://localhost:8080 |
 
 ### Architecture
 

@@ -132,4 +132,15 @@ Format: `YYYY-MM-DD — [EN] description | [FR] description`
 - `docs/tools/annotator.md` : note de compatibilité Streamlit ajoutée (EN + FR)
 - Skill `developing-with-streamlit` installé dans `.claude/skills/` (17 sous-skills + templates)
 
+## 2026-04-29 (suite 4)
+
+**HMI dashboard étendu | Extended HMI dashboard**
+
+- `Stats` étendu : `class_counts[5]`, `history: VecDeque<InspectionRecord>`, `pipeline_done`
+- `pipeline.rs` : enregistre historique + compteurs par classe, `pipeline_done = true` en fin de run
+- `hmi/mod.rs` : nouvel endpoint `/api/history` (50 dernières inspections), `/api/stats` enrichi
+- `index.html` : dashboard complet — breakdown par classe (barres colorées), table des 50 dernières détections, badge statut Running/Complete
+- `docs/tools/hmi.md` : guide bilingue complet (prérequis, CLI, sections dashboard, API endpoints)
+- `docs/index.md` : hmi ajouté dans la section Outils (EN + FR)
+
 <!-- New entries go above this line, below the last entry -->
