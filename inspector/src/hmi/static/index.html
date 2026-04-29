@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Yolobottles — Inspection Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    h1 { font-size: 1.6rem; letter-spacing: 0.1em; color: #fff; margin-bottom: 8px; }
+    .subtitle { font-size: 0.85rem; color: #888; margin-bottom: 40px; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 700px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: #1a1d27;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      border: 1px solid #2a2d3a;
+    }
+    .card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #888; margin-bottom: 10px; }
+    .card .value { font-size: 2.4rem; font-weight: 700; }
+    .card.total  .value { color: #90caf9; }
+    .card.ok     .value { color: #66bb6a; }
+    .card.ng     .value { color: #ef5350; }
+    .card.rate   .value { color: #ffa726; }
+
+    .bar-container {
+      width: 100%;
+      max-width: 700px;
+      background: #1a1d27;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 18px;
+      border: 1px solid #2a2d3a;
+    }
+    .bar-ok { height: 100%; background: #66bb6a; transition: width 0.4s ease; }
+
+    .status { margin-top: 16px; font-size: 0.78rem; color: #555; }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #66bb6a; margin-right: 6px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  </style>
+</head>
+<body>
+  <h1>YOLOBOTTLES</h1>
+  <div class="subtitle">PET Bottle Bottom Inspection — Image Bank Mode</div>
+
+  <div class="cards">
+    <div class="card total"><div class="label">Inspected</div><div class="value" id="total">—</div></div>
+    <div class="card ok">   <div class="label">OK</div>        <div class="value" id="ok">—</div></div>
+    <div class="card ng">   <div class="label">NG</div>        <div class="value" id="ng">—</div></div>
+    <div class="card rate"> <div class="label">Reject %</div>  <div class="value" id="rate">—</div></div>
+  </div>
+
+  <div class="bar-container">
+    <div class="bar-ok" id="bar" style="width:0%"></div>
+  </div>
+
+  <div class="status"><span class="dot"></span>Refreshing every second</div>
+
+  <script>
+    async function refresh() {
+      try {
+        const r = await fetch('/api/stats');
+        const d = await r.json();
+        document.getElementById('total').textContent = d.total;
+        document.getElementById('ok').textContent    = d.ok;
+        document.getElementById('ng').textContent    = d.ng;
+        document.getElementById('rate').textContent  = d.reject_rate_pct.toFixed(1) + '%';
+        const pct = d.total > 0 ? (d.ok / d.total * 100) : 0;
+        document.getElementById('bar').style.width = pct + '%';
+      } catch(e) { /* server not ready yet */ }
+    }
+    refresh();
+    setInterval(refresh, 1000);
+  </script>
+</body>
+</html>

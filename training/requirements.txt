@@ -1,0 +1,28 @@
+# Install order matters — torch first, then ultralytics
+#
+# GPU machine (CUDA 12.4 driver or newer):
+#   pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu124
+#
+# CPU-only machine (or CUDA version unknown):
+#   pip install -r requirements.txt
+#   (torch from PyPI = CPU build; slower training but functional)
+
+torch>=2.3.0
+torchvision>=0.18.0
+
+# YOLO
+ultralytics>=8.3.0
+
+# Utilities
+opencv-python>=4.10.0
+Pillow>=10.0.0
+numpy>=1.26.0
+pyyaml>=6.0
+tqdm>=4.66.0
+matplotlib>=3.8.0
+
+# ONNX export
+onnx>=1.16.0
+# onnxruntime-gpu — optional, only for local ONNX tests with GPU
+# On CPU-only machines replace with: onnxruntime>=1.18.0
+onnxruntime-gpu>=1.18.0

@@ -1,0 +1,16 @@
+# YOLOv8 dataset config — Yolobottles
+# View: top-down, camera above, filming bottle bottom through neck
+# Input resolution: 640x640
+
+path: ../datasets/labeled
+train: images/train
+val:   images/val
+test:  images/test
+
+nc: 5
+names:
+  0: color_defect   # abnormal coloration, yellowing, black areas
+  1: hole           # perforation, crack, tear in PET wall
+  2: contamination  # foreign particle, black spot, inclusion
+  3: whitening      # PET stress-whitening, opaque zone
+  4: mold_defect    # missing or deformed mold imprint on bottom

@@ -1,0 +1,44 @@
+# === Python ===
+__pycache__/
+*.pyc
+training/.venv/
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# === Rust ===
+inspector/target/
+
+# === YOLO training outputs (large) ===
+models/runs/
+models/pretrained/*.pt
+models/exports/
+
+# === Raw image banks (large, not versionned) ===
+datasets/raw/
+datasets/labeled/images/
+datasets/labeled/labels/
+
+# === ONNX / TensorRT binaries ===
+*.onnx
+*.trt
+*.engine
+
+# === Knowledge base (can grow large) ===
+raw/
+graph/
+
+# === Obsidian — local state (changes every session) ===
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# === Claude Code — local permission overrides ===
+.claude/settings.local.json
+
+# === Misc ===
+.env
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
