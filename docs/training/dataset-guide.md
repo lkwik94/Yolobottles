@@ -126,13 +126,13 @@ The script:
 
 ### Verify before training
 
-```bash
-# Count images and labels (must be equal)
-ls datasets/labeled/images/train/ | wc -l
-ls datasets/labeled/labels/train/ | wc -l
+```powershell
+# Count images and labels (must be equal) — PowerShell
+(Get-ChildItem datasets/labeled/images/train/).Count
+(Get-ChildItem datasets/labeled/labels/train/).Count
 
 # Quick visual check — open a label file
-cat datasets/labeled/labels/train/some_image.txt
+Get-Content datasets/labeled/labels/train/some_image.txt
 # Expected: one line per box, e.g.  3 0.412 0.631 0.180 0.240
 # Empty file = OK image (correct, not an error)
 ```
@@ -257,10 +257,10 @@ Le script :
 
 ### Vérifier avant d'entraîner
 
-```bash
-ls datasets/labeled/images/train/ | wc -l
-ls datasets/labeled/labels/train/ | wc -l
-# Les deux compteurs doivent être égaux
+```powershell
+# PowerShell — les deux compteurs doivent être égaux
+(Get-ChildItem datasets/labeled/images/train/).Count
+(Get-ChildItem datasets/labeled/labels/train/).Count
 ```
 
 ---
