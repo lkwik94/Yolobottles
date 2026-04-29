@@ -28,13 +28,13 @@ Raw images (BMP/JPG/PNG)
   datasets/raw/ok/        ← good bottles
   datasets/raw/ng/<class>/  ← defective bottles by class
         ↓
-  [LabelImg — draw bounding boxes]
+  [Annotator — draw bounding boxes]
         ↓
   datasets/labeled/       ← ready for training
 ```
 
 The importer handles **classification only** (which class is this?).
-Bounding box annotation is a separate step done in LabelImg.
+Bounding box annotation is a separate step done with the [[tools/annotator]] tool.
 
 ---
 
@@ -142,10 +142,9 @@ appends `_1`, `_2`, etc. to avoid overwrites.
 
 ### After classification — next steps
 
-1. Open [[training/dataset-guide]] to understand the labeling workflow
-2. Open LabelImg on `datasets/raw/ng/<class>/` to draw bounding boxes
-3. Export labels in YOLO format → `datasets/labeled/`
-4. Run training: `python training/train.py`
+1. Open [[tools/annotator]] to draw bounding boxes on NG images
+2. Run `python training/prepare_dataset.py` to create the train/val split
+3. Run training: `python training/train.py`
 
 ---
 
@@ -178,13 +177,13 @@ Images brutes (BMP/JPG/PNG)
   datasets/raw/ok/           ← bonnes bouteilles
   datasets/raw/ng/<classe>/  ← bouteilles défectueuses par classe
         ↓
-  [LabelImg — dessiner les bounding boxes]
+  [Annotateur — dessiner les bounding boxes]
         ↓
   datasets/labeled/          ← prêt pour l'entraînement
 ```
 
 L'importeur gère uniquement la **classification** (quelle classe ?).
-L'annotation des bounding boxes est une étape séparée dans LabelImg.
+L'annotation des bounding boxes est une étape séparée dans l'outil [[tools/annotator]].
 
 ---
 
@@ -287,10 +286,9 @@ En cas de conflit de nom, `_1`, `_2`, etc. sont ajoutés automatiquement.
 
 ### Après la classification — prochaines étapes
 
-1. Lire [[training/dataset-guide]] pour le workflow d'annotation
-2. Ouvrir LabelImg sur `datasets/raw/ng/<classe>/` pour dessiner les bounding boxes
-3. Exporter en format YOLO → `datasets/labeled/`
-4. Lancer l'entraînement : `python training/train.py`
+1. Ouvrir [[tools/annotator]] pour dessiner les bounding boxes sur les images NG
+2. Lancer `python training/prepare_dataset.py` pour créer le split train/val
+3. Lancer l'entraînement : `python training/train.py`
 
 ---
 

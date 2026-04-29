@@ -121,4 +121,15 @@ Format: `YYYY-MM-DD — [EN] description | [FR] description`
 - Mis à jour `docs/index.md` — ajout de l'annoteur dans la section Outils (EN + FR)
 - Mis à jour `docs/training/dataset-guide.md` — étape 2 remplacée : LabelImg → annoteur Streamlit
 
+## 2026-04-29 (suite 3)
+
+**Corrections doc + fix compatibilité Streamlit | Doc fixes + Streamlit compatibility fix**
+
+- `streamlit-drawable-canvas` 0.9.3 incompatible avec Streamlit 1.37+ (`image_to_url` supprimé)
+- Pin `streamlit<1.37` dans `requirements.txt` ; Streamlit 1.36.0 installé dans le venv
+- `app.py` et `annotate.py` améliorés : `@st.cache_data` sur les scans disque, `setdefault` session state
+- `docs/tools/importer.md` : références LabelImg remplacées par l'annoteur Streamlit (EN + FR)
+- `docs/tools/annotator.md` : note de compatibilité Streamlit ajoutée (EN + FR)
+- Skill `developing-with-streamlit` installé dans `.claude/skills/` (17 sous-skills + templates)
+
 <!-- New entries go above this line, below the last entry -->

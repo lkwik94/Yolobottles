@@ -49,7 +49,9 @@ python -m pip install --upgrade pip -q
 pip install -r requirements.txt
 ```
 
-The `requirements.txt` includes `streamlit-drawable-canvas`, which powers the canvas.
+The `requirements.txt` pins `streamlit<1.37` — required for compatibility with
+`streamlit-drawable-canvas` 0.9.3 (the canvas library uses an internal Streamlit API
+removed in 1.37+).
 
 ---
 
@@ -199,6 +201,11 @@ cd tools/importer
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
+
+> [!NOTE] Version Streamlit
+> Le `requirements.txt` impose `streamlit<1.37` pour la compatibilité avec
+> `streamlit-drawable-canvas` 0.9.3 (la bibliothèque utilise une API interne
+> supprimée dans Streamlit 1.37+).
 
 ---
 
