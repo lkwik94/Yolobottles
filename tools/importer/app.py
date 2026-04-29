@@ -75,12 +75,14 @@ st.set_page_config(
 # ---------------------------------------------------------------------------
 # Session state
 # ---------------------------------------------------------------------------
-if "skip_set"    not in st.session_state:
-    st.session_state.skip_set: set  = set()   # noms de fichiers ignorés ce run
-if "history"     not in st.session_state:
-    st.session_state.history:  list = []       # [(dest_path, src_name)]
-if "n_classified" not in st.session_state:
-    st.session_state.n_classified: int = 0
+if "skip_set"       not in st.session_state:
+    st.session_state.skip_set:       set  = set()   # noms de fichiers ignorés ce run
+if "history"        not in st.session_state:
+    st.session_state.history:        list = []       # [(dest_path, src_name)]
+if "n_classified"   not in st.session_state:
+    st.session_state.n_classified:   int  = 0
+if "confirm_delete" not in st.session_state:
+    st.session_state.confirm_delete: bool = False
 
 # ---------------------------------------------------------------------------
 # Image list
@@ -111,9 +113,34 @@ with st.sidebar:
         st.write(f"{name} : **{count}**")
 
     st.divider()
-    if st.button("🔄  Réinitialiser ignorées", use_container_width=True):
-        st.session_state.skip_set = set()
+    if st.button("🔄  Réinitialiser ignorées", use_container_width=True,
+                 help="Remet les images ignorées dans la file de classification"):
+        st.session_state.skip_set    = set()
+        st.session_state.confirm_delete = False
         st.rerun()
+
+    # Suppression des ignorées — confirmation en deux clics
+    if n_skipped > 0:
+        skipped_files = [f for f in all_images if f.name in st.session_state.skip_set]
+        if not st.session_state.confirm_delete:
+            if st.button(f"🗑️  Supprimer ignorées ({n_skipped})",
+                         use_container_width=True,
+                         help="Supprime définitivement les images ignorées de import/"):
+                st.session_state.confirm_delete = True
+                st.rerun()
+        else:
+            st.warning(f"Supprimer **{n_skipped}** fichier(s) définitivement ?")
+            col_ok, col_no = st.columns(2)
+            if col_ok.button("✅ Confirmer", use_container_width=True):
+                for f in skipped_files:
+                    if f.exists():
+                        f.unlink()
+                st.session_state.skip_set       = set()
+                st.session_state.confirm_delete = False
+                st.rerun()
+            if col_no.button("❌ Annuler", use_container_width=True):
+                st.session_state.confirm_delete = False
+                st.rerun()
 
 # ---------------------------------------------------------------------------
 # Main area — empty state

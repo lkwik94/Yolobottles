@@ -54,6 +54,9 @@ python -m venv .venv
 # Activate — bash/zsh (Linux / macOS)
 # source .venv/bin/activate
 
+# Mettre pip à jour (évite le notice "new release available")
+python -m pip install --upgrade pip -q
+
 # Install dependencies (prompt must show (.venv) prefix)
 pip install -r requirements.txt
 ```
@@ -118,6 +121,11 @@ appears automatically.
 - **Ignore** — keeps the image in `import/`, skips it for this session.
   Use for images you are unsure about. Click **Reset ignored** in the
   sidebar to revisit them.
+
+- **Delete ignored (n)** — permanently deletes all currently ignored images
+  from `import/`. Use for erroneous imports or irrelevant data.
+  Requires a two-click confirmation (button → **Confirm**) to prevent
+  accidental deletion. Only visible when at least one image is ignored.
 
 - **Cancel (last)** — moves the last classified image back to `import/`
   and decrements the counter. Only the most recent action can be undone.
@@ -257,6 +265,13 @@ apparaît automatiquement.
 - **Ignorer** — laisse l'image dans `import/`, la saute pour cette session.
   Utiliser pour les images incertaines. Cliquer **Réinitialiser ignorées**
   dans la sidebar pour les revoir.
+
+- **Supprimer ignorées (n)** — supprime définitivement toutes les images
+  ignorées du dossier `import/`. À utiliser pour les imports erronés ou
+  les données non pertinentes copiées par erreur.
+  Requiert une confirmation en deux clics (bouton → **Confirmer**) pour
+  éviter toute suppression accidentelle. Visible uniquement si au moins
+  une image est ignorée.
 
 - **Annuler** — remet la dernière image classifiée dans `import/` et
   décrémente le compteur. Uniquement la dernière action est annulable.
