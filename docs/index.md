@@ -33,6 +33,12 @@ Camera mounted above, filming the **bottle bottom through the neck**. YOLO-based
 |------|-------------|
 | [[workspace-guide]] | Full workspace usage guide — setup, daily workflow, all tools |
 
+### Tools
+
+| Page | Description |
+|------|-------------|
+| [[tools/importer]] | Visual image triage — classify raw images into the dataset structure |
+
 ### Architecture
 
 | Page | Description |
@@ -89,6 +95,12 @@ Caméra montée au-dessus, filmant le **fond de bouteille par le goulot**. Déte
 > Déploiement cible : NVIDIA Jetson + caméra GigE Vision jusqu'à 100 000 bouteilles/heure.
 
 ---
+
+### Outils
+
+| Page | Description |
+|------|-------------|
+| [[tools/importer]] | Triage visuel d'images — classer les images brutes dans la structure dataset |
 
 ### Architecture
 

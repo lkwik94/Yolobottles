@@ -69,4 +69,21 @@ Format: `YYYY-MM-DD — [EN] description | [FR] description`
 - Partie 2 (Rust) : prête sans modification, `cargo build` compile sur tout PC avec Rust installé
 
 ---
+
+## 2026-04-29
+
+**Image importer — outil de triage visuel | Visual triage tool**
+
+- Créé `tools/importer/app.py` — application Streamlit de triage d'images
+- Interface navigateur : image pleine largeur + 6 boutons de classification + Ignorer + Annuler
+- Déplacement automatique vers `datasets/raw/ok/` ou `ng/<classe>/` à chaque clic
+- Compteurs de session + totaux dataset live dans la sidebar
+- Gestion des conflits de noms, annulation de la dernière action
+- Créé `tools/importer/requirements.txt` — streamlit + Pillow uniquement
+- Dossier `datasets/import/` créé et ajouté au `.gitignore`
+- `tools/importer/.venv/` ajouté au `.gitignore`
+- Créé `docs/tools/importer.md` — guide bilingue complet (installation, workflow, dépannage)
+- `docs/index.md` mis à jour — section Outils ajoutée (EN + FR)
+
+---
 <!-- New entries go above this line, below the last entry -->
