@@ -86,4 +86,21 @@ Format: `YYYY-MM-DD — [EN] description | [FR] description`
 - `docs/index.md` mis à jour — section Outils ajoutée (EN + FR)
 
 ---
+
+## 2026-04-29 (suite)
+
+**Dataset annotation guide + prepare_dataset script**
+
+- Creé `docs/training/dataset-guide.md` — guide bilingue complet (étapes 2 et 3 du pipeline)
+  - Installation LabelImg, création classes.txt, workflow annotation, format label YOLO
+  - Explication bounding boxes, raccourcis clavier, cas particuliers (multi-défauts)
+  - Étape 3 : script prepare_dataset.py, options dry-run/val-ratio
+- Créé `training/prepare_dataset.py` — script de préparation du dataset
+  - Vérifie les labels NG manquants (bloque si absent, sauf --dry-run)
+  - Crée les fichiers labels vides pour les images OK
+  - Split aléatoire reproductible (seed=42), ratio configurable
+  - Copie vers datasets/labeled/images/ et labels/
+- Test dry-run : 24 OK + 5 NG détectés, 5 annotations manquantes signalées, split 19/5 prévisualisé
+
+---
 <!-- New entries go above this line, below the last entry -->
