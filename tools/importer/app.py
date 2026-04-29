@@ -14,15 +14,12 @@ import streamlit as st
 from PIL import Image
 
 # ---------------------------------------------------------------------------
-# Paths
+# Paths + constants
 # ---------------------------------------------------------------------------
 REPO_ROOT  = Path(__file__).resolve().parent.parent.parent
 IMPORT_DIR = REPO_ROOT / "datasets" / "import"
 RAW_DIR    = REPO_ROOT / "datasets" / "raw"
 
-# ---------------------------------------------------------------------------
-# Class definitions  (key, button label, destination subfolder)
-# ---------------------------------------------------------------------------
 CLASSES = [
     ("ok",            "✅  OK — bonne bouteille",    "ok"),
     ("color_defect",  "🟡  Défaut couleur",          "ng/color_defect"),
@@ -35,14 +32,17 @@ CLASSES = [
 SUPPORTED_EXT = {".bmp", ".jpg", ".jpeg", ".png", ".tiff", ".tif"}
 
 # ---------------------------------------------------------------------------
-# Helpers
+# Cached helpers  (TTL avoids re-scanning disk on every widget interaction)
 # ---------------------------------------------------------------------------
 
-def get_pending() -> list[Path]:
+@st.cache_data(ttl=2)
+def get_pending() -> list[str]:
+    """Return sorted list of image paths in datasets/import/ (as strings for cache serialization)."""
     IMPORT_DIR.mkdir(parents=True, exist_ok=True)
-    return sorted(f for f in IMPORT_DIR.iterdir() if f.suffix.lower() in SUPPORTED_EXT)
+    return sorted(str(f) for f in IMPORT_DIR.iterdir() if f.suffix.lower() in SUPPORTED_EXT)
 
 
+@st.cache_data(ttl=5)
 def dataset_count(subpath: str) -> int:
     d = RAW_DIR / subpath
     if not d.exists():
@@ -54,7 +54,6 @@ def move_to(src: Path, dest_subpath: str) -> Path:
     dest_dir = RAW_DIR / dest_subpath
     dest_dir.mkdir(parents=True, exist_ok=True)
     dest = dest_dir / src.name
-    # Avoid overwriting — append _1, _2 … if needed
     if dest.exists():
         i = 1
         while dest.exists():
@@ -75,19 +74,16 @@ st.set_page_config(
 # ---------------------------------------------------------------------------
 # Session state
 # ---------------------------------------------------------------------------
-if "skip_set"       not in st.session_state:
-    st.session_state.skip_set:       set  = set()   # noms de fichiers ignorés ce run
-if "history"        not in st.session_state:
-    st.session_state.history:        list = []       # [(dest_path, src_name)]
-if "n_classified"   not in st.session_state:
-    st.session_state.n_classified:   int  = 0
-if "confirm_delete" not in st.session_state:
-    st.session_state.confirm_delete: bool = False
+st.session_state.setdefault("skip_set", set())
+st.session_state.setdefault("history", [])
+st.session_state.setdefault("n_classified", 0)
+st.session_state.setdefault("confirm_delete", False)
 
 # ---------------------------------------------------------------------------
 # Image list
 # ---------------------------------------------------------------------------
-all_images = get_pending()
+all_paths  = get_pending()
+all_images = [Path(p) for p in all_paths]
 pending    = [f for f in all_images if f.name not in st.session_state.skip_set]
 n_skipped  = len(all_images) - len(pending)
 
@@ -109,7 +105,7 @@ with st.sidebar:
     st.subheader("Dataset — totaux")
     for _, label, subpath in CLASSES:
         count = dataset_count(subpath)
-        name  = label.split("  ", 1)[1]        # strip emoji prefix
+        name  = label.split("  ", 1)[1]
         st.write(f"{name} : **{count}**")
 
     st.divider()
@@ -119,7 +115,6 @@ with st.sidebar:
         st.session_state.confirm_delete = False
         st.rerun()
 
-    # Suppression des ignorées — confirmation en deux clics
     if n_skipped > 0:
         skipped_files = [f for f in all_images if f.name in st.session_state.skip_set]
         if not st.session_state.confirm_delete:
@@ -159,23 +154,21 @@ if not pending:
     st.stop()
 
 # ---------------------------------------------------------------------------
-# Current image — toujours la première de la liste pending
+# Current image — always the first pending image
 # ---------------------------------------------------------------------------
 current = pending[0]
 
-# Barre de progression
 done  = st.session_state.n_classified
 total = done + len(pending)
 pct   = done / total if total else 0
 st.progress(pct, text=f"**{len(pending)}** restante(s) · **{done}** classifiée(s) cette session")
 
-# Mise en page : grande image à gauche, contrôles à droite
 img_col, ctrl_col = st.columns([3, 1])
 
 with img_col:
     img = Image.open(current)
     if img.mode == "L":
-        img = img.convert("RGB")   # grayscale → RGB pour l'affichage
+        img = img.convert("RGB")
     w, h = img.size
     st.image(img, caption=f"{current.name}  ·  {w}×{h} px", use_container_width=True)
 
@@ -189,6 +182,8 @@ with ctrl_col:
             dest = move_to(current, subpath)
             st.session_state.history.append((dest, current.name))
             st.session_state.n_classified += 1
+            get_pending.clear()
+            dataset_count.clear()
             st.rerun()
 
     st.divider()
@@ -207,6 +202,8 @@ with ctrl_col:
                 shutil.move(str(last_path), str(IMPORT_DIR / last_name))
                 st.session_state.n_classified -= 1
             st.session_state.history.pop()
+            get_pending.clear()
+            dataset_count.clear()
             st.rerun()
 
     st.divider()

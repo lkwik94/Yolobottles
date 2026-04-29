@@ -21,7 +21,6 @@ RAW_NG    = REPO_ROOT / "datasets" / "raw" / "ng"
 
 CLASSES = ["color_defect", "hole", "contamination", "whitening", "mold_defect"]
 
-# One stroke color + fill per class
 COLORS = ["#e67e22", "#e74c3c", "#8e44ad", "#3498db", "#1abc9c"]
 FILLS  = [
     "rgba(230,126,34,0.2)", "rgba(231,76,60,0.2)", "rgba(142,68,173,0.2)",
@@ -29,21 +28,40 @@ FILLS  = [
 ]
 
 SUPPORTED = {".bmp", ".jpg", ".jpeg", ".png", ".tiff", ".tif"}
-CANVAS_W  = 800   # max display width in browser
+CANVAS_W  = 800
 
 # ---------------------------------------------------------------------------
-# Helpers
+# Cached helpers
 # ---------------------------------------------------------------------------
 
-def get_images() -> list[Path]:
+@st.cache_data(ttl=5)
+def get_images() -> list[str]:
+    """Scan all NG subfolders — cached to avoid rescanning on every widget interaction."""
     if not RAW_NG.exists():
         return []
     return sorted(
-        f
+        str(f)
         for d in RAW_NG.iterdir() if d.is_dir()
         for f in d.iterdir() if f.suffix.lower() in SUPPORTED
     )
 
+
+@st.cache_data(ttl=3)
+def count_annotated(ng_root: str) -> int:
+    """Count annotated images — cached separately from the full list scan."""
+    root = Path(ng_root)
+    if not root.exists():
+        return 0
+    return sum(
+        1 for d in root.iterdir() if d.is_dir()
+        for f in d.iterdir()
+        if f.suffix.lower() in SUPPORTED and f.with_suffix(".txt").exists()
+        and f.with_suffix(".txt").stat().st_size > 0
+    )
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
 def folder_class(img: Path) -> int:
     try:
@@ -98,6 +116,7 @@ def save_labels(img: Path, objs: list, box_classes: dict, cw: int, ch: int) -> i
         bh  = max(0.001, min(1.0, hpx / ch))
         lines.append(f"{cid} {cx:.6f} {cy:.6f} {bw:.6f} {bh:.6f}")
     img.with_suffix(".txt").write_text("\n".join(lines) + ("\n" if lines else ""))
+    count_annotated.clear()
     return len(lines)
 
 # ---------------------------------------------------------------------------
@@ -109,13 +128,14 @@ st.set_page_config(
     layout="wide",
 )
 
-for k, v in [("idx", 0), ("box_classes", {}), ("n_saved", 0)]:
-    if k not in st.session_state:
-        st.session_state[k] = v
+st.session_state.setdefault("idx", 0)
+st.session_state.setdefault("box_classes", {})
+st.session_state.setdefault("n_saved", 0)
 
-images  = get_images()
-n_total = len(images)
-n_done  = sum(1 for f in images if is_annotated(f))
+image_paths = get_images()
+images      = [Path(p) for p in image_paths]
+n_total     = len(images)
+n_done      = count_annotated(str(RAW_NG))
 
 # Sidebar
 with st.sidebar:
@@ -206,7 +226,6 @@ objs = [
     if o.get("type") == "rect"
 ]
 
-# If boxes were deleted, trim box_classes
 if len(objs) < len(st.session_state.box_classes):
     st.session_state.box_classes = {
         i: st.session_state.box_classes.get(i, folder_class(current))
