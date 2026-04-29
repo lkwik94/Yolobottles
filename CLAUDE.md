@@ -26,7 +26,10 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1          # PowerShell (Windows)
 
 # Install dependencies (first time only, inside venv)
-pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu124
+# Step 1 — PyTorch with CUDA 12.8 (compatible with CUDA 13.0 drivers / Blackwell RTX PRO 500)
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+# Step 2 — rest of dependencies
+pip install -r requirements.txt
 
 # Train
 python train.py --model yolov8s.pt --epochs 50 --batch 16
@@ -189,7 +192,7 @@ Yolobottles/
 | GPU | RTX PRO 500 Black — 6 GB VRAM |
 | CPU | Intel Ultra 7 265H — 16 cores |
 | RAM | 32 GB |
-| CUDA | 13.0 (use PyTorch with CUDA 12.4 build) |
+| CUDA | 13.0 — use PyTorch cu128 build (PyTorch 2.11.0 + CUDA 12.8, Blackwell compatible) |
 | Python | 3.12.10 |
 | Rust | 1.93.1 |
 

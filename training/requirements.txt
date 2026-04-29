@@ -1,7 +1,8 @@
 # Install order matters — torch first, then ultralytics
 #
-# GPU machine (CUDA 12.4 driver or newer):
-#   pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu124
+# GPU machine (CUDA 12.6+ / CUDA 13.0 / Blackwell RTX PRO 500):
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+#   pip install -r requirements.txt
 #
 # CPU-only machine (or CUDA version unknown):
 #   pip install -r requirements.txt
