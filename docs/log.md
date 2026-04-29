@@ -103,4 +103,22 @@ Format: `YYYY-MM-DD — [EN] description | [FR] description`
 - Test dry-run : 24 OK + 5 NG détectés, 5 annotations manquantes signalées, split 19/5 prévisualisé
 
 ---
+## 2026-04-29 (suite 2)
+
+**Annoteur Streamlit — remplacement de LabelImg | Streamlit annotator — LabelImg replacement**
+
+- LabelImg 1.8.6 incompatible avec Python 3.12 : `ModuleNotFoundError: No module named 'distutils'`
+- Créé `tools/importer/annotate.py` — annoteur de bounding boxes dans le navigateur
+  - `streamlit-drawable-canvas` pour le dessin de rectangles sur canvas Fabric.js
+  - Sélecteur de classe actif + couleur distincte par classe (5 couleurs)
+  - Sélecteur de classe individuel par boîte (pour images multi-défauts)
+  - Chargement des annotations existantes (`.txt` → canvas initial_drawing)
+  - Sauvegarde en format YOLO normalisé avec gestion scaleX/scaleY
+  - Navigation sidebar (liste cliquable, indicateur [OK]/[ ])
+  - Boutons : Précédente / Suivante / Sauvegarder / Sauvegarder + Suivante
+- Ajouté `streamlit-drawable-canvas>=0.9.3` dans `tools/importer/requirements.txt`
+- Créé `docs/tools/annotator.md` — guide bilingue complet (installation, workflow, dépannage)
+- Mis à jour `docs/index.md` — ajout de l'annoteur dans la section Outils (EN + FR)
+- Mis à jour `docs/training/dataset-guide.md` — étape 2 remplacée : LabelImg → annoteur Streamlit
+
 <!-- New entries go above this line, below the last entry -->

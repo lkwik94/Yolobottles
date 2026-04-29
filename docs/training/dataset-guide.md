@@ -17,7 +17,7 @@ See also: [[index]] · [[tools/importer]] · [[training/yolo-config]] · [[train
 
 ```
 ✅ 1. Classify          importer tool     → datasets/raw/ok/  +  ng/<class>/
-→  2. Annotate          LabelImg          → draw bounding boxes on NG images
+→  2. Annotate          annotator tool    → draw bounding boxes on NG images
 →  3. Prepare split     prepare_dataset   → datasets/labeled/  (train / val)
    4. Train             train.py          → models/runs/
    5. Export ONNX       export_onnx.py    → models/exports/onnx/
@@ -28,88 +28,37 @@ This page covers steps 2 and 3.
 
 ---
 
-### Step 2 — Annotate with LabelImg
+### Step 2 — Annotate with the Annotator tool
 
-#### Install LabelImg
+See the full guide: [[tools/annotator]]
 
-LabelImg is a graphical annotation tool that produces YOLO-format `.txt` label files.
-Use the importer venv or a dedicated one — do not install into the training venv.
+The annotator is a browser-based tool built with Streamlit.
+It replaces LabelImg (incompatible with Python 3.12 — `distutils` removed).
+
+#### Run the annotator
 
 ```bash
 cd tools/importer
-
-# Activate the venv
 .venv\Scripts\Activate.ps1           # Windows PowerShell
 # source .venv/bin/activate          # Linux / macOS
 
-# Install
-pip install labelImg
+streamlit run annotate.py
+# Browser opens at http://localhost:8501
 ```
 
-#### Create the class list
+#### Workflow
 
-LabelImg needs a `classes.txt` file in the images folder to know the class names.
-Create one in each NG class folder you want to annotate:
-
-```
-color_defect
-hole
-contamination
-whitening
-mold_defect
-```
-
-The order matters — it defines the class IDs used in the `.txt` label files.
-
-```bash
-# Quickest way — run once from the project root:
-python -c "
-from pathlib import Path
-classes = 'color_defect\nhole\ncontamination\nwhitening\nmold_defect\n'
-for d in Path('datasets/raw/ng').iterdir():
-    if d.is_dir():
-        (d / 'classes.txt').write_text(classes)
-print('classes.txt created in all ng/ subfolders')
-"
-```
-
-#### Open LabelImg
-
-```bash
-# With venv activated:
-labelImg
-```
-
-In the LabelImg window:
-
-1. **Open Dir** → select `datasets/raw/ng/whitening/`  (or any NG class folder)
-2. **Change Save Dir** → select the **same** folder (labels saved next to images)
-3. Bottom-left selector: set format to **YOLO** (not PascalVOC)
-4. Enable **Auto Save** (View → Auto Save mode) to save on every Next/Prev
-
-#### Draw a bounding box
-
-| Action | Shortcut |
-|--------|----------|
-| Draw new box | `W` |
-| Next image | `D` |
-| Previous image | `A` |
-| Delete selected box | `Delete` |
-| Save | `Ctrl+S` |
-| Zoom in / out | Mouse wheel |
-
-Workflow per image:
-1. Press `W` — cursor becomes a crosshair
-2. Click and drag to draw a rectangle around the defect
-3. A dialog appears — select the correct class from the list
-4. Press `D` to go to the next image (auto-saves if enabled)
+1. Select the active **class** in the right panel (before drawing)
+2. **Click and drag** on the image to draw a bounding box around the defect
+3. Adjust the class per box if needed (dropdown below the canvas)
+4. Click **Sauvegarder + Suivante** to save and move to the next image
 
 > [!TIP] One box per defect
 > If a bottle has two separate contamination spots, draw two boxes.
 > If two different defect types are visible, draw one box per class.
 
 > [!NOTE] OK images — no annotation needed
-> Do not open `datasets/raw/ok/` in LabelImg.
+> Do not open `datasets/raw/ok/` in the annotator.
 > The `prepare_dataset.py` script creates empty label files for OK images automatically.
 
 #### What a label file looks like
@@ -209,7 +158,7 @@ Results appear in `models/runs/<name>/`. Log them in [[training/experiments]].
 
 ```
 ✅ 1. Classifier        outil importer    → datasets/raw/ok/  +  ng/<classe>/
-→  2. Annoter           LabelImg          → dessiner les bounding boxes sur les NG
+→  2. Annoter           outil annotator   → dessiner les bounding boxes sur les NG
 →  3. Préparer le split prepare_dataset   → datasets/labeled/  (train / val)
    4. Entraîner         train.py          → models/runs/
    5. Exporter ONNX     export_onnx.py    → models/exports/onnx/
@@ -220,68 +169,36 @@ Cette page couvre les étapes 2 et 3.
 
 ---
 
-### Étape 2 — Annoter avec LabelImg
+### Étape 2 — Annoter avec l'outil Annotator
 
-#### Installer LabelImg
+Guide complet : [[tools/annotator]]
+
+L'annoteur est un outil dans le navigateur basé sur Streamlit.
+Il remplace LabelImg (incompatible avec Python 3.12 — module `distutils` supprimé).
+
+#### Lancer l'annoteur
 
 ```bash
 cd tools/importer
 .venv\Scripts\Activate.ps1
 
-pip install labelImg
+streamlit run annotate.py
+# Le navigateur s'ouvre sur http://localhost:8501
 ```
 
-#### Créer la liste des classes
+#### Workflow
 
-LabelImg a besoin d'un fichier `classes.txt` dans le dossier des images.
-
-```bash
-# Depuis la racine du projet :
-python -c "
-from pathlib import Path
-classes = 'color_defect\nhole\ncontamination\nwhitening\nmold_defect\n'
-for d in Path('datasets/raw/ng').iterdir():
-    if d.is_dir():
-        (d / 'classes.txt').write_text(classes)
-print('classes.txt créé dans tous les sous-dossiers ng/')
-"
-```
-
-#### Ouvrir LabelImg
-
-```bash
-labelImg
-```
-
-Dans la fenêtre LabelImg :
-
-1. **Open Dir** → sélectionner `datasets/raw/ng/whitening/`
-2. **Change Save Dir** → sélectionner le **même** dossier
-3. Sélecteur en bas à gauche : format **YOLO** (pas PascalVOC)
-4. Activer **Auto Save** (View → Auto Save mode)
-
-#### Annoter une image
-
-| Action | Raccourci |
-|--------|-----------|
-| Dessiner une boîte | `W` |
-| Image suivante | `D` |
-| Image précédente | `A` |
-| Supprimer la boîte sélectionnée | `Delete` |
-| Sauvegarder | `Ctrl+S` |
-
-Flux par image :
-1. Appuyer sur `W` — curseur en croix
-2. Cliquer-glisser pour dessiner un rectangle autour du défaut
-3. Sélectionner la classe dans la liste
-4. Appuyer sur `D` pour passer à l'image suivante (sauvegarde automatique)
+1. Sélectionner la **classe** active dans le panneau de droite (avant de dessiner)
+2. **Cliquer-glisser** sur l'image pour dessiner une bounding box autour du défaut
+3. Ajuster la classe par boîte si nécessaire (menu déroulant sous le canvas)
+4. Cliquer **Sauvegarder + Suivante** pour sauvegarder et passer à l'image suivante
 
 > [!TIP] Une boîte par défaut
 > Deux taches de contamination séparées = deux boîtes.
 > Deux types de défauts différents = une boîte par classe.
 
 > [!NOTE] Images OK — pas d'annotation
-> Ne pas ouvrir `datasets/raw/ok/` dans LabelImg.
+> Ne pas ouvrir `datasets/raw/ok/` dans l'annoteur.
 > Le script `prepare_dataset.py` crée automatiquement les fichiers labels vides.
 
 #### Format d'un fichier label
